@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Permapol{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="container">
+  <div class="row">
+    <div class="col-md-3 ">
+      <div class="list-group">
+          <a href="#overview" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
+          <a href="#admin_groups" data-toggle="tab" class="list-group-item list-group-item-action">Group administration ({{admin_groups | length}})</a>
+          <a href="#user_groups" data-toggle="tab" class="list-group-item list-group-item-action">Group memberships ({{user_groups | length}})</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="tab-content card">
+        <div class="tab-pane active text-style card-body" id="overview">
+            <p>Welcome to the Apollo permission manager</p>
+            <p>In this manager, you can create custom groups to give access to your organisms to other users</p>
+            <p>They will be able to access and edit your organism, but not share it with other users</p>
+            {% if organisms %}
+            <p>You currently have access to {{ organisms | length }} organism(s)</p>
+                <ul>
+                {% for organism in organisms %}
+                    <li>{{organism}}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+            <p>You currently do not have direct access to any organism</p>
+            {% endif %}
+        </div>
+        <div class="tab-pane text-style card-body" id="admin_groups">
+          <p>Here, you can see any custom group you are an administrator of :</p>
+          <p>You can also create a new group <a>here</a></p>
+          {% if admin_groups %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr style="text-align:center;">
+                          <th scope="col">Group name</th>
+                          <th scope="col">Action</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for group in admin_groups %}
+                    <tr style="text-align:center;">
+                        <td>{{group}}</td>
+                        <td>Edit</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <br>
+          <p>You are not the administrator of any group</p>
+          {% endif %}
+        </div>
+        <div class="tab-pane text-style card-body" id="user_groups">
+          <p>Here, you can see any custom group you are a member of :</p>
+          {% if user_groups %}
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th scope="col" style="text-align:center;">Group name</th>
+                          <th scope="col" style="text-align:center;">Admin(s)</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for group in user_groups %}
+                    <tr style="text-align:center;">
+                        <td>{{group.name}}</td>
+                        <td>{{group.admins}}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <br>
+          <p>You are not a member of any custom group</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-group">
+      <div class="modal-dialog"><div class="modal-content"></div></div>
+  </div>
+  </div>
+</div>
+<br>
+{% endblock %}
