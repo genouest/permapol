@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Permapol{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="container">
+  <div class="row">
+    <div class="col-md-3 ">
+      <div class="list-group">
+          <a href="#permissions" data-toggle="tab" class="list-group-item list-group-item-action active">Permissions</a>
+          <a href="#members" data-toggle="tab" class="list-group-item list-group-item-action">Group members ({{group.users | length}})</a>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="tab-content card">
+        <div class="tab-pane text-style card-body active" id="permissions">
+          {% if group.organismPermissions %}
+          <p>Here are the current organisms members will have access to : </p>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th scope="col" style="text-align:center;">Organism</th>
+                          <th scope="col" style="text-align:center;">Remove?</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for orga in group.organismPermissions %}
+                    <tr style="text-align:center;">
+                        <td>{{orga.organism}}</td>
+                        <td><button class="btn btn-info js-form" data-url="/organisms/{{orga.id}}/remove_access/{{group.id}}"><i class="fas fa-trash"></i></button></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% endif %}
+          {% if available_organisms %}
+          <p>Available organisms</p>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th scope="col" style="text-align:center;">Organism</th>
+                          <th scope="col" style="text-align:center;">Add?</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for orga in available_organisms %}
+                    <tr style="text-align:center;">
+                        <td>{{orga.name}}</td>
+                        <td><button class="btn btn-info js-form" data-url="/organisms/{{orga.id}}/add_access/{{group.id}}"><i class="fas fa-plus"></i></button></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <p>There are no other organisms that can be added to this group</p>
+          {% endif %}
+        </div>
+        <div class="tab-pane text-style card-body" id="members">
+          {% if group.users %}
+          <p>Current group member(s): </p>
+          <div class="table-responsive-xl">
+              <table class="table table-hover">
+                  <thead>
+                      <tr>
+                          <th scope="col" style="text-align:center;">Username</th>
+                          <th scope="col" style="text-align:center;">Remove?</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  {% for user in group.users %}
+                    <tr style="text-align:center;">
+                        <td>{{user.email}}</td>
+                        <td>{% if not current_user == user.email %}
+                          <button class="btn btn-info js-form" data-url="/groups/{{group.id}}/remove_user/{{user.id}}"><i class="fas fa-trash"></i></button>
+                        {% endif%}
+                        </td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+            </table>
+          </div>
+          {% else %}
+          <p>There are no users in this group</p>
+          {% endif %}
+          <p> Add new user? <button class="btn btn-info js-form" data-url="/groups/{{group.id}}/add_user"><i class="fas fa-plus"></i></button></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modal-group">
+      <div class="modal-dialog"><div class="modal-content"></div></div>
+  </div>
+  </div>
+</div>
+<br>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

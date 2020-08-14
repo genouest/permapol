@@ -1,5 +1,4 @@
 <form method="post" action="" class="js-form">
-  {% csrf_token %}
   <div class="modal-header">
     <h4 class="modal-title">Create a new group</h4>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -8,15 +7,8 @@
   </div>
   <div class="modal-body">
     <p class="lead">Select your group name</p>
-        <div class="form-field">{{ form.group_name.label }} {{ form.group_name }}
-            {% if form.email.errors %}
-                <ul class="errors">
-                {% for error in form.group_name.errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+        {{ form.hidden_tag() }}
+        <div class="form-field">{{ form.group_name.label }} {{ form.group_name }}</div>
   </div>
   <div class="modal-footer">
     <button type="submit" class="btn btn-success">Create group</button>

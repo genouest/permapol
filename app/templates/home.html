@@ -23,7 +23,7 @@
             <p>You currently have access to {{ organisms | length }} organism(s)</p>
                 <ul>
                 {% for organism in organisms %}
-                    <li>{{organism}}</li>
+                    <li>{{organism.name}}</li>
                 {% endfor %}
                 </ul>
             {% else %}
@@ -32,7 +32,8 @@
         </div>
         <div class="tab-pane text-style card-body" id="admin_groups">
           <p>Here, you can see any custom group you are an administrator of :</p>
-          <p>You can also create a new group <a>here</a></p>
+          <p>You can also create a new group</p>
+          <button class="btn btn-outline-info js-create"><i class="fas fa-external-link-alt"></i>New</button>
           {% if admin_groups %}
           <div class="table-responsive-xl">
               <table class="table table-hover">
@@ -45,8 +46,8 @@
                   <tbody>
                   {% for group in admin_groups %}
                     <tr style="text-align:center;">
-                        <td>{{group}}</td>
-                        <td>Edit</td>
+                        <td>{{group.name}}</td>
+                        <td>Edit ({{group.id}})</td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -94,4 +95,9 @@
   </div>
 </div>
 <br>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/create_group.js') }}"></script>
 {% endblock %}

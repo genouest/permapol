@@ -2,3 +2,4 @@ apollo==4.2.4
 Flask==1.1.2
 Bootstrap-Flask==1.4
 Flask-WTF==0.14.3
+Flask-FontAwesome==0.1.5
