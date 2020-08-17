@@ -16,7 +16,7 @@
       <div class="tab-content card">
         <div class="tab-pane text-style card-body active" id="permissions">
           {% if group.organismPermissions %}
-          <p>Here are the current organisms members will have access to : </p>
+          <p>Here are the current organisms members have access to : </p>
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
@@ -26,10 +26,10 @@
                       </tr>
                   </thead>
                   <tbody>
-                  {% for orga in group.organismPermissions %}
+                  {% for orga in added_organisms %}
                     <tr style="text-align:center;">
-                        <td>{{orga.organism}}</td>
-                        <td><button class="btn btn-info js-form" data-url="/organisms/{{orga.id}}/remove_access/{{group.id}}"><i class="fas fa-trash"></i></button></td>
+                        <td>{{orga.name}}</td>
+                        <td><button class="btn btn-info js-form" data-url="{{ url_for('remove_orga_group', group_id=group.id, orga_id=orga.id)}}"><i class="fas fa-trash"></i></button></td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -51,7 +51,7 @@
                   {% for orga in available_organisms %}
                     <tr style="text-align:center;">
                         <td>{{orga.name}}</td>
-                        <td><button class="btn btn-info js-form" data-url="/organisms/{{orga.id}}/add_access/{{group.id}}"><i class="fas fa-plus"></i></button></td>
+                        <td><button class="btn btn-info js-form" data-url="{{ url_for('add_orga_group', group_id=group.id, orga_id=orga.id)}}"><i class="fas fa-plus"></i></button></td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -78,7 +78,7 @@
                     <tr style="text-align:center;">
                         <td>{{user.email}}</td>
                         <td>{% if not current_user == user.email %}
-                          <button class="btn btn-info js-form" data-url="/groups/{{group.id}}/remove_user/{{user.id}}"><i class="fas fa-trash"></i></button>
+                          <button class="btn btn-info js-form" data-url="{{ url_for('remove_user_group', group_id=group.id, user_id=user.id)}}"><i class="fas fa-trash"></i></button>
                         {% endif%}
                         </td>
                     </tr>
@@ -90,7 +90,7 @@
           {% else %}
           <p>There are no users in this group</p>
           {% endif %}
-          <p> Add new user? <button class="btn btn-info js-form" data-url="/groups/{{group.id}}/add_user"><i class="fas fa-plus"></i></button></p>
+          <p> Add new user? <button class="btn btn-info js-form" data-url="{{ url_for('add_user_group', group_id=group.id)}}"><i class="fas fa-plus"></i></button></p>
         </div>
       </div>
     </div>
@@ -105,4 +105,5 @@
 
 {% block scripts %}
     {{ super() }}
+    <script src="{{ url_for('static', filename='js/groups.js') }}"></script>
 {% endblock %}

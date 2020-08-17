@@ -47,7 +47,7 @@
                   {% for group in admin_groups %}
                     <tr style="text-align:center;">
                         <td>{{group.name}}</td>
-                        <td>Edit ({{group.id}})</td>
+                        <td><a class="btn btn-info" href="{{ url_for('view_group', id=group.id)}}"><i class="fas fa-external-link-alt"></i>View</a></td>
                     </tr>
                   {% endfor %}
                   </tbody>

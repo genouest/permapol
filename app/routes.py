@@ -1,7 +1,7 @@
 from flask import render_template, jsonify, redirect, request, session, url_for
 from app import app
 from functools import wraps
-from .forms import CreateGroupForm
+from .forms import CreateGroupForm, AddUserForm
 import json
 
 def check_remote_login(func):
@@ -41,7 +41,10 @@ def view_group(id):
     user_organisms = _get_user_organisms(session['username'])
     set_organisms = [orga['organism'] for orga in group['organismPermissions']]
     available_organisms = [organism for organism in user_organisms if organism['name'] not in set_organisms]
-    return render_template('group.html', group=group, available_organisms=available_organisms, current_user=session['username'])
+    # Will not show organism that the user do not have access to, even if they are associated with the group. 
+    # Should not happen, but will avoid users removing groupes he does not have direct to
+    added_organisms = [organism for organism in user_organisms if organism['name'] in set_organisms]
+    return render_template('group.html', group=group, added_organisms=added_organisms, available_organisms=available_organisms, current_user=session['username'])
 
 @app.route('/groups/create', methods=['GET', 'POST'])
 @check_remote_login
@@ -49,12 +52,90 @@ def create_group():
     form = CreateGroupForm()
     if form.validate_on_submit():
         group_id = _create_group(form.group_name.data, session['username'])
-        return jsonify(status='ok', redirect=url_for('index', id=group_id))
+        return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
     elif request.method == 'GET':
         return render_template('_partial_group_create.html', form=form)
     else:
         data = json.dumps(form.errors, ensure_ascii=False)
         return jsonify(data)
+
+@app.route('/groups/<group_id>/add_orga_access/<orga_id>', methods=['GET', 'POST'])
+@check_remote_login
+def add_orga_group(group_id, orga_id):
+    group = _get_group(group_id)
+    # Skip if no group or not admin
+    if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
+        return
+    orga = _get_organism(orga_id)
+    # Skip if no organism or already has permission
+    if not orga or orga['commonName'] in [organism['organism'] for organism in group['organismPermissions']]:
+        return
+
+    if request.method == 'GET':
+        return render_template('_partial_organism_add.html', group=group, orga=orga, action="add")
+    else:
+        _manage_organism(group['name'], orga['commonName'], 'add')
+        return jsonify(status='ok', redirect=url_for('view_group', id=group['id']))
+
+@app.route('/groups/<group_id>/remove_orga_access/<orga_id>', methods=['GET', 'POST'])
+@check_remote_login
+def remove_orga_group(group_id, orga_id):
+    group = _get_group(group_id)
+    # Skip if no group or not admin
+    if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
+        return
+    orga = _get_organism(orga_id)
+    # Skip if no organism or do not have permission
+    if not orga or not orga['commonName'] in [organism['organism'] for organism in group['organismPermissions']]:
+        return
+
+    if request.method == 'GET':
+        return render_template('_partial_organism_remove.html', group=group, orga=orga, action="remove")
+    else:
+        _manage_organism(group['name'], orga['commonName'], 'remove')
+        return jsonify(status='ok', redirect=url_for('view_group', id=group['id']))
+
+@app.route('/groups/<group_id>/add_user', methods=['GET', 'POST'])
+@check_remote_login
+def add_user_group(group_id):
+
+    group = _get_group(group_id)
+    # Skip if no group or not admin
+    if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
+        return
+
+    form = AddUserForm()
+    if form.validate_on_submit():
+        _manage_group(group['name'], form.user_mail.data, 'add')
+        return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
+    elif request.method == 'GET':
+        return render_template('_partial_user_add.html', form=form, group=group)
+    else:
+        data = json.dumps(form.errors, ensure_ascii=False)
+        return jsonify(data)
+
+@app.route('/groups/<group_id>/remove_user/<user_id>', methods=['GET', 'POST'])
+@check_remote_login
+def remove_user_group(group_id, user_id):
+    group = _get_group(group_id)
+    # Skip if no group or not admin
+    if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
+        return
+
+    user = _get_user(user_id)
+
+    if not user or not user_id in [str(user['id']) for user in group["users"]]:
+        return
+
+    # Cannot remove admin
+    if user['username'] in [admin['email'] for admin in group['admin']]:
+        return
+
+    if request.method == 'GET':
+        return render_template('_partial_user_remove.html', group=group, user=user)
+    else:
+        _manage_group(group['name'], user['username'], 'remove')
+        return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
 
 def _get_group(group_id):
     # Apollo does not handle errors gracefully, so cleanup the data
@@ -70,12 +151,42 @@ def _get_group(group_id):
         pass
     return group
 
+def _get_user(user_id):
+    # Apollo does not handle errors gracefully, so cleanup the data
+    wa = app.config["APOLLO_INSTANCE"]
+    user = None
+    try:
+        user_id = int(user_id)
+    except ValueError:
+        return user
+    try:
+        user = wa.users.show_user(user_id)
+    except Exception:
+        pass
+    return user
+
+def _get_organism(organism_id):
+    wa = app.config["APOLLO_INSTANCE"]
+    orga = None
+    try:
+        organism_id = int(organism_id)
+    except ValueError:
+        return orga
+    orga = wa.organisms.show_organism(organism_id)
+    if "error" in orga:
+        return None
+    return orga
+
 def _get_user_organisms(username):
     wa = app.config["APOLLO_INSTANCE"]
     # Will organism the user has direct access to, not organism with access through groups
     # This should avoid loss of control over the organism visibility
     organisms = wa.users.get_organism_permissions(username)
-    organism_list = [{"name": organism['organism'], "id": organism['id']} for organism in organisms if "WRITE" in organism['permissions']]
+    organism_list = []
+    for organism in organisms:
+        if "WRITE" in organism['permissions']:
+            orga = wa.organisms.show_organism(organism['organism'])
+            organism_list.append({"name": orga['commonName'], "id": orga['id']})
     return organism_list
 
 def _get_user_groups(username):
@@ -96,6 +207,21 @@ def _get_user_groups(username):
             if admins:
                 user_groups["user"].append({'admins': admins, 'name': group['name']})
     return user_groups
+
+def _manage_organism(group_name, organism_name, action):
+    wa = app.config["APOLLO_INSTANCE"]
+
+    if action == "add":
+        wa.groups.update_organism_permissions(group_name, organism_name, False, True, True, True)
+    elif action == "remove":
+        wa.groups.update_organism_permissions(group_name, organism_name)
+
+def _manage_group(group_name, username, action):
+    wa = app.config["APOLLO_INSTANCE"]
+    if action == "add":
+        wa.users.add_to_group(group_name, username)
+    elif action == "remove":
+        wa.users.remove_from_group(group_name, username)
 
 def _create_group(group_name, user_name):
     wa = app.config["APOLLO_INSTANCE"]
