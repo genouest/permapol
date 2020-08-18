@@ -14,15 +14,18 @@
     </div>
     <div class="col-md-9">
       <div class="tab-content card">
+        <div class="card-header">
+            <h3>Group <i>{{group.name}}</i></h3>
+        </div>
         <div class="tab-pane text-style card-body active" id="permissions">
-          {% if group.organismPermissions %}
-          <p>Here are the current organisms members have access to : </p>
+          <h4 style="text-align:center">Linked organism(s)</h4>
+          {% if added_organisms %}
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
                       <tr>
                           <th scope="col" style="text-align:center;">Organism</th>
-                          <th scope="col" style="text-align:center;">Remove?</th>
+                          <th scope="col" style="text-align:center;">Remove</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -36,15 +39,18 @@
                   <tr>
             </table>
           </div>
+          {% else %}
+          <div style="text-align:center">No organisms are associated with this group.</div>
           {% endif %}
+          <hr>
+          <h4 style="text-align:center">Available organisms</h4>
           {% if available_organisms %}
-          <p>Available organisms</p>
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
                       <tr>
                           <th scope="col" style="text-align:center;">Organism</th>
-                          <th scope="col" style="text-align:center;">Add?</th>
+                          <th scope="col" style="text-align:center;">Add</th>
                       </tr>
                   </thead>
                   <tbody>
@@ -59,12 +65,13 @@
             </table>
           </div>
           {% else %}
-          <p>There are no other organisms that can be added to this group</p>
+          <div style="text-align:center">No organisms are available.</div>
           {% endif %}
         </div>
         <div class="tab-pane text-style card-body" id="members">
+          <h4>Current group member(s) <button data-url="{{ url_for('add_user_group', group_id=group.id)}}" class="btn btn-info js-form float-right"><i class="fas fa-plus"></i> Add user</button></h4>
           {% if group.users %}
-          <p>Current group member(s): </p>
+          <br>
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
@@ -78,7 +85,7 @@
                     <tr style="text-align:center;">
                         <td>{{user.email}}</td>
                         <td>{% if not current_user == user.email %}
-                          <button class="btn btn-info js-form" data-url="{{ url_for('remove_user_group', group_id=group.id, user_id=user.id)}}"><i class="fas fa-trash"></i></button>
+                          <button class="btn btn-danger js-form" data-url="{{ url_for('remove_user_group', group_id=group.id, user_id=user.id)}}"><i class="fas fa-trash"></i></button>
                         {% endif%}
                         </td>
                     </tr>
@@ -90,7 +97,6 @@
           {% else %}
           <p>There are no users in this group</p>
           {% endif %}
-          <p> Add new user? <button class="btn btn-info js-form" data-url="{{ url_for('add_user_group', group_id=group.id)}}"><i class="fas fa-plus"></i></button></p>
         </div>
       </div>
     </div>

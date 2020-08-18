@@ -3,8 +3,9 @@ $(function () {
   /* Functions */
 
   var loadForm = function () {
+    var btn = $(this);
     $.ajax({
-      url: "/groups/create",
+      url: btn.attr("data-url"),
       type: 'get',
       beforeSend: function () {
         console.log("test2")
@@ -19,7 +20,7 @@ $(function () {
   var saveForm = function () {
     var form = $(this);
     $.ajax({
-      url: "/groups/create",
+      url: form.attr("data-url"),
       data: form.serialize(),
       type: form.attr("method"),
       success: function (data) {

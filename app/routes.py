@@ -65,11 +65,11 @@ def add_orga_group(group_id, orga_id):
     group = _get_group(group_id)
     # Skip if no group or not admin
     if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
-        return
+        return jsonify({})
     orga = _get_organism(orga_id)
     # Skip if no organism or already has permission
     if not orga or orga['commonName'] in [organism['organism'] for organism in group['organismPermissions']]:
-        return
+        return jsonify({})
 
     if request.method == 'GET':
         return render_template('_partial_organism_add.html', group=group, orga=orga, action="add")
@@ -83,11 +83,11 @@ def remove_orga_group(group_id, orga_id):
     group = _get_group(group_id)
     # Skip if no group or not admin
     if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
-        return
+        return jsonify({})
     orga = _get_organism(orga_id)
     # Skip if no organism or do not have permission
     if not orga or not orga['commonName'] in [organism['organism'] for organism in group['organismPermissions']]:
-        return
+        return jsonify({})
 
     if request.method == 'GET':
         return render_template('_partial_organism_remove.html', group=group, orga=orga, action="remove")
@@ -102,7 +102,7 @@ def add_user_group(group_id):
     group = _get_group(group_id)
     # Skip if no group or not admin
     if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
-        return
+        return jsonify({})
 
     form = AddUserForm()
     if form.validate_on_submit():
@@ -120,16 +120,16 @@ def remove_user_group(group_id, user_id):
     group = _get_group(group_id)
     # Skip if no group or not admin
     if not group or not session['username'] in [admin['email'] for admin in group['admin']]:
-        return
+        return jsonify({})
 
     user = _get_user(user_id)
 
     if not user or not user_id in [str(user['id']) for user in group["users"]]:
-        return
+        return jsonify({})
 
     # Cannot remove admin
     if user['username'] in [admin['email'] for admin in group['admin']]:
-        return
+        return jsonify({})
 
     if request.method == 'GET':
         return render_template('_partial_user_remove.html', group=group, user=user)
@@ -196,9 +196,8 @@ def _get_user_groups(username):
     for group in groups:
         gp = wa.groups.get_group_admin(group['name'])
         if username in [admin['username'] for admin in gp]:
-            # Really inefficient way to get the id. Id should be returned in the show_user call...
-            id = wa.groups.get_groups(group['name'])[0]['id']
-            user_groups["admin"].append({'name': group['name'], 'id':id})
+            grp = wa.groups.get_groups(group['name'])[0]
+            user_groups["admin"].append({'name': group['name'], 'id':grp['id'], "members": len(grp['users']), "organisms": len(grp['organismPermissions'])})
             admins = ", ".join([admin['username'] for admin in gp if not admin['username'] == app.config['APOLLO_USER']])
             user_groups["user"].append({'admins': admins, 'name': group['name']})
         else:

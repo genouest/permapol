@@ -10,44 +10,56 @@
       <div class="list-group">
           <a href="#overview" data-toggle="tab" class="list-group-item list-group-item-action active">Overview</a>
           <a href="#admin_groups" data-toggle="tab" class="list-group-item list-group-item-action">Group administration ({{admin_groups | length}})</a>
-          <a href="#user_groups" data-toggle="tab" class="list-group-item list-group-item-action">Group memberships ({{user_groups | length}})</a>
+          <a href="#user_groups" data-toggle="tab" class="list-group-item list-group-item-action">Group membership(s) ({{user_groups | length}})</a>
       </div>
     </div>
     <div class="col-md-9">
       <div class="tab-content card">
         <div class="tab-pane active text-style card-body" id="overview">
-            <p>Welcome to the Apollo permission manager</p>
-            <p>In this manager, you can create custom groups to give access to your organisms to other users</p>
-            <p>They will be able to access and edit your organism, but not share it with other users</p>
+            <div>
+                Welcome to the Apollo permission manager.<br>
+                You can use this manager to create groups, and share any organisms with the group members.<br>
+                They will be able to access and edit your organism, but not share it with other users.<br>
+            </div>
+            <hr>
+            <h4 style="text-align:center">Sharable organisms</h4>
             {% if organisms %}
-            <p>You currently have access to {{ organisms | length }} organism(s)</p>
-                <ul>
-                {% for organism in organisms %}
-                    <li>{{organism.name}}</li>
-                {% endfor %}
-                </ul>
+              <div class="table-responsive-xl">
+                <table class="table table-hover">
+                  <tbody>
+                  {% for organism in organisms %}
+                    <tr>
+                        <td>{{organism.name}}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+                </table>
+              </div>
             {% else %}
-            <p>You currently do not have direct access to any organism</p>
+                <div style="text-align:center">You do not have sharable access to any organisms</div>
             {% endif %}
         </div>
         <div class="tab-pane text-style card-body" id="admin_groups">
-          <p>Here, you can see any custom group you are an administrator of :</p>
-          <p>You can also create a new group</p>
-          <button class="btn btn-outline-info js-create"><i class="fas fa-external-link-alt"></i>New</button>
+          <h2>Group administration <button data-url="{{ url_for('create_group')}}" class="btn btn-info js-create float-right"><i class="fas fa-plus"></i> New</button></h2>
           {% if admin_groups %}
           <div class="table-responsive-xl">
               <table class="table table-hover">
                   <thead>
                       <tr style="text-align:center;">
                           <th scope="col">Group name</th>
-                          <th scope="col">Action</th>
+                          <th scope="col">Members</th>
+                          <th scope="col">Organisms</th>
+                          <th scope="col"></th>
                       </tr>
                   </thead>
                   <tbody>
                   {% for group in admin_groups %}
                     <tr style="text-align:center;">
                         <td>{{group.name}}</td>
-                        <td><a class="btn btn-info" href="{{ url_for('view_group', id=group.id)}}"><i class="fas fa-external-link-alt"></i>View</a></td>
+                        <td>{{group.members}}</td>
+                        <td>{{group.organisms}}</td>
+                        <td><a class="btn btn-info" href="{{ url_for('view_group', id=group.id)}}"><i class="fas fa-external-link-alt"></i> View</a></td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -60,7 +72,7 @@
           {% endif %}
         </div>
         <div class="tab-pane text-style card-body" id="user_groups">
-          <p>Here, you can see any custom group you are a member of :</p>
+          <h2>Group membership(s)</h2>
           {% if user_groups %}
           <div class="table-responsive-xl">
               <table class="table table-hover">

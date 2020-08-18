@@ -1,4 +1,4 @@
-<form method="post" action="" class="js-form" data-url="{{ url_for('remove_user_group', group_id=group.id, user_id=user.id)}}">
+<form method="post" action="" class="js-form" data-url="{{ url_for('remove_user_group', group_id=group.id, user_id=user.userId)}}">
   <div class="modal-header">
     <h4 class="modal-title">Remove user from group</h4>
     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -9,7 +9,7 @@
     <p class="lead">Are you sure you want to remove {{user.username}} from group?</p>
   </div>
   <div class="modal-footer">
-    <button type="submit" class="btn btn-success">Remove user</button>
+    <button type="submit" class="btn btn-danger">Remove user</button>
     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
   </div>
 </form>
