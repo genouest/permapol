@@ -8,7 +8,6 @@ $(function () {
       url: btn.attr("data-url"),
       type: 'get',
       beforeSend: function () {
-        console.log("test2")
         $("#modal-group").modal("show");
       },
       success: function (data) {

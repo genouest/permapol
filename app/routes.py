@@ -1,8 +1,11 @@
 from flask import render_template, jsonify, redirect, request, session, url_for
-from app import app
+from app import app, cache, scheduler
 from functools import wraps
 from .forms import CreateGroupForm, AddUserForm
 import json
+
+
+
 
 def check_remote_login(func):
     @wraps(func)
@@ -70,6 +73,9 @@ def add_orga_group(group_id, orga_id):
     # Skip if no organism or already has permission
     if not orga or orga['commonName'] in [organism['organism'] for organism in group['organismPermissions']]:
         return jsonify({})
+    # Skip if user does not have write access to this organism (just in case)
+    if not orga_id in [organisme.id for organism in _get_user_organisms(session['username'])]:
+        return jsonify({})
 
     if request.method == 'GET':
         return render_template('_partial_organism_add.html', group=group, orga=orga, action="add")
@@ -109,7 +115,7 @@ def add_user_group(group_id):
         _manage_group(group['name'], form.user_mail.data, 'add')
         return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
     elif request.method == 'GET':
-        return render_template('_partial_user_add.html', form=form, group=group)
+        return render_template('_partial_user_add_test.html', form=form, group=group, user_list=_get_all_users())
     else:
         data = json.dumps(form.errors, ensure_ascii=False)
         return jsonify(data)
@@ -234,4 +240,16 @@ def _add_user_to_group(group_name, user_name):
     wa = app.config["APOLLO_INSTANCE"]
     wa.users.add_to_group(group_name, user_name)
 
+def _get_all_users(refresh=False):
+    val = cache.get("user_list")
+    if val and not refresh:
+        return val
+    else:
+        wa = app.config["APOLLO_INSTANCE"]
+        user_list = [user['username'] for user in wa.users.get_users()]
+        cache.set("user_list", user_list)
+        return user_list
 
+# Cache user list
+_get_all_users()
+scheduler.add_job(func=_get_all_users, trigger='interval', args=["True"], minutes=59, id="users_job")

@@ -17,6 +17,7 @@
                 }
             </style>
             {{ bootstrap.load_css() }}
+            <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
         {% endblock %}
 
         <title>Permapol</title>
@@ -45,6 +46,7 @@
         {% block scripts %}
             <!-- Optional JavaScript -->
             {{ bootstrap.load_js() }}
+            <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.js" ></script>
         {% endblock %}
     </body>
 </html>

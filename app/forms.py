@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, ValidationError
 from app import app
 
 class CreateGroupForm(FlaskForm):
-    group_name = StringField("", validators=[DataRequired()])
+    group_name = StringField("Group name", validators=[DataRequired()])
 
     def validate_group_name(form, field):
         wa = app.config["APOLLO_INSTANCE"]
@@ -12,7 +12,7 @@ class CreateGroupForm(FlaskForm):
             raise ValidationError("This group name is already in use")
 
 class AddUserForm(FlaskForm):
-    user_mail = StringField("", validators=[DataRequired()])
+    user_mail = StringField("User email", validators=[DataRequired()],id="mail_field")
 
     def validate_user_mail(form, field):
         wa = app.config["APOLLO_INSTANCE"]
