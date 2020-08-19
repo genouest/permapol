@@ -1,4 +1,4 @@
-from flask import render_template, jsonify, redirect, request, session, url_for
+from flask import render_template, jsonify, redirect, request, session, url_for, abort
 from app import app, cache, scheduler
 from functools import wraps
 from .forms import CreateGroupForm, AddUserForm
@@ -9,16 +9,17 @@ def check_remote_login(func):
     def decorated_function(*args, **kwargs):
         # Do the check here, or redirect if fail:
         # Check if the header is set, and that the user actually exists
-        # Might need to cache the request?
         wa = app.config["APOLLO_INSTANCE"]
-        username = "mateo.boudet@gmail.com"
+        proxy_header = app.config["PROXY_HEADER"]
+        username = request.headers.get(proxy_header)
+        if not username:
+            abort(401)
         # Check cookie
         if not 'username' in session:
             if wa.users.show_user(username):
                 session['username'] = "mateo.boudet@gmail.com"
             else:
-                pass
-                # Redirect?
+                abort(401)
         return func(*args, **kwargs)
     return decorated_function
 

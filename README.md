@@ -9,5 +9,6 @@ Required env variables
 
 Optional env variables
 
+* PROXY_HEADER *Default to REMOTE_USER*
 * USER_AUTOCOMPLETE *Default to FALSE. If set to TRUE, there will be an autocompletion when adding user to a group*
 * CRON_SYNC *Default to FALSE. If set to TRUE, a cron will run daily to remove access to an organism if the admin lost access*

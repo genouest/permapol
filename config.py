@@ -9,6 +9,7 @@ class Config(object):
     APOLLO_USER = os.environ.get('APOLLO_USER')
     APOLLO_PASSWORD = os.environ.get('APOLLO_PASSWORD')
     APOLLO_URL = os.environ.get('APOLLO_URL')
+    PROXY_HEADER = os.environ.get("PROXY_HEADER", "REMOTE_USER")
     USER_AUTOCOMPLETE = os.environ.get('USER_AUTOCOMPLETE', "FALSE")
     CRON_SYNC = os.environ.get('CRON_SYNC', "FALSE")
 
