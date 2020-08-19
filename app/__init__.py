@@ -15,3 +15,11 @@ scheduler.init_app(app)
 scheduler.start()
 
 from app import routes
+
+if app.config.get("USER_AUTOCOMPLETE") == "TRUE":
+    # Cache user list
+    routes._get_all_users()
+    scheduler.add_job(func=routes._get_all_users, trigger='interval', args=["True"], minutes=59, id="users_job")
+
+if app.config.get("CRON_SYNC") == "TRUE":
+    scheduler.add_job(func=routes._sync_permissions, trigger='interval', days=1, id="sync_job")

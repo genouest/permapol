@@ -112,7 +112,10 @@ def add_user_group(group_id):
         _manage_group(group['name'], form.user_mail.data, 'add')
         return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
     elif request.method == 'GET':
-        return render_template('_partial_user_add_test.html', form=form, group=group, user_list=_get_all_users())
+        if app.config.get("USER_AUTOCOMPLETE") == "TRUE":
+            return render_template('_partial_user_add_autocomplete.html', form=form, group=group, user_list=_get_all_users())
+        else:
+            return render_template('_partial_user_add.html', form=form, group=group)
     else:
         data = json.dumps(form.errors, ensure_ascii=False)
         return jsonify(data)
@@ -263,14 +266,3 @@ def _sync_permissions():
         for missing_org in group_orga - organisms_access:
             _manage_organism(group['name'], missing_org, "remove")
             print("Organism sync : removing organism {} from group {}".format(missing_org, group['name']))
-
-# Should be a better way to put this
-if app.config.get("USER_AUTOCOMPLETE") == "TRUE":
-    # Cache user list
-    _get_all_users()
-    scheduler.add_job(func=_get_all_users, trigger='interval', args=["True"], minutes=59, id="users_job")
-
-if app.config.get("CRON_SYNC") == "TRUE":
-    scheduler.add_job(func=_sync_permissions, trigger='interval', days=1, id="sync_job")
-
-_sync_permissions()

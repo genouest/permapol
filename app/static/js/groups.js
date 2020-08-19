@@ -27,6 +27,7 @@ $(function () {
             $('#Modal').modal('hide');
             window.location = data.redirect;
         } else {
+            console.log("test")
             var obj = JSON.parse(data);
             for (var key in obj) {
               if (obj.hasOwnProperty(key)) {

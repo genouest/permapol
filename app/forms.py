@@ -12,7 +12,7 @@ class CreateGroupForm(FlaskForm):
             raise ValidationError("This group name is already in use")
 
 class AddUserForm(FlaskForm):
-    user_mail = StringField("User email", validators=[DataRequired()],id="mail_field")
+    user_mail = StringField("User email", validators=[DataRequired()])
 
     def validate_user_mail(form, field):
         wa = app.config["APOLLO_INSTANCE"]
