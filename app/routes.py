@@ -4,9 +4,6 @@ from functools import wraps
 from .forms import CreateGroupForm, AddUserForm
 import json
 
-
-
-
 def check_remote_login(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
@@ -74,7 +71,7 @@ def add_orga_group(group_id, orga_id):
     if not orga or orga['commonName'] in [organism['organism'] for organism in group['organismPermissions']]:
         return jsonify({})
     # Skip if user does not have write access to this organism (just in case)
-    if not orga_id in [organisme.id for organism in _get_user_organisms(session['username'])]:
+    if not orga_id in [str(organism['id']) for organism in _get_user_organisms(session['username'])]:
         return jsonify({})
 
     if request.method == 'GET':
@@ -250,6 +247,30 @@ def _get_all_users(refresh=False):
         cache.set("user_list", user_list)
         return user_list
 
-# Cache user list
-_get_all_users()
-scheduler.add_job(func=_get_all_users, trigger='interval', args=["True"], minutes=59, id="users_job")
+def _sync_permissions():
+    wa = app.config["APOLLO_INSTANCE"]
+    groups = wa.groups.get_groups()
+    for group in groups:
+        # Skip groups with admin in it
+        admins = [admin['email'] for admin in group['admin']]
+        if app.config["APOLLO_USER"] in admins:
+            continue
+        group_orga = set([orga['organism'] for orga in group['organismPermissions']])
+        organisms_access = set()
+        for admin in admins:
+            admin_organisms = set([orga['name'] for orga in _get_user_organisms(admin)])
+            organisms_access |= admin_organisms
+        for missing_org in group_orga - organisms_access:
+            _manage_organism(group['name'], missing_org, "remove")
+            print("Organism sync : removing organism {} from group {}".format(missing_org, group['name']))
+
+# Should be a better way to put this
+if app.config.get("USER_AUTOCOMPLETE") == "TRUE":
+    # Cache user list
+    _get_all_users()
+    scheduler.add_job(func=_get_all_users, trigger='interval', args=["True"], minutes=59, id="users_job")
+
+if app.config.get("CRON_SYNC") == "TRUE":
+    scheduler.add_job(func=_sync_permissions, trigger='interval', days=1, id="sync_job")
+
+_sync_permissions()
