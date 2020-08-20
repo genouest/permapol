@@ -2,7 +2,11 @@
 
 [![Docker Repository on Quay](https://quay.io/repository/genouest/permapol/status "Docker Repository on Quay")](https://quay.io/repository/genouest/permapol)
 
-Permission manager for Apollo
+A permission manager for Apollo, designed to ease collaboration when coupled with a Galaxy instance.
+
+Users can freely create user groups, and grant them access to the organisms they create from Galaxy. No admin rights need to be granted to anyone for this, allowing more autonomy while staying as secure as possible.
+
+The Web UI is exposed on port 80 by default.
 
 ## Required env variables
 
