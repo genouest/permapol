@@ -120,7 +120,7 @@ def add_user_group(group_id):
         _manage_group(group['name'], form.user_mail.data, 'add')
         return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
     elif request.method == 'GET':
-        if app.config.get("USER_AUTOCOMPLETE") == "TRUE":
+        if app.config.get("USER_AUTOCOMPLETE").lower() == "true":
             return render_template('_partial_user_add_autocomplete.html', form=form, group=group, user_list=_get_all_users())
         else:
             return render_template('_partial_user_add.html', form=form, group=group)
