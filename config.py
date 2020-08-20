@@ -12,6 +12,7 @@ class Config(object):
     PROXY_HEADER = os.environ.get("PROXY_HEADER", "REMOTE_USER")
     USER_AUTOCOMPLETE = os.environ.get('USER_AUTOCOMPLETE', "FALSE")
     CRON_SYNC = os.environ.get('CRON_SYNC', "FALSE")
+    PROXY_PREFIX = os.environ.get('PROXY_PREFIX')
 
     APOLLO_INSTANCE = ApolloInstance(APOLLO_URL, APOLLO_USER, APOLLO_PASSWORD)
     SECRET_KEY = os.urandom(32)

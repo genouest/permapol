@@ -4,6 +4,7 @@ from flask_fontawesome import FontAwesome
 from flask_caching import Cache
 from config import Config
 from flask_apscheduler import APScheduler
+from app.middleware import PrefixMiddleware
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -13,6 +14,9 @@ cache = Cache(app)
 scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
+
+if app.config.get("PROXY_PREFIX"):
+    app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=app.config.get("PROXY_PREFIX").rstrip("/"))
 
 from app import routes
 

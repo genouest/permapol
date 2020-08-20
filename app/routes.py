@@ -18,7 +18,7 @@ def check_remote_login(func):
         # Check cookie
         if 'username' not in session:
             if wa.users.show_user(username):
-                session['username'] = "mateo.boudet@gmail.com"
+                session['username'] = username
             else:
                 abort(401)
         return func(*args, **kwargs)
