@@ -8,6 +8,24 @@ Users can freely create user groups, and grant them access to the organisms they
 
 The Web UI is exposed on port 80 by default.
 
+Authentication is based on a REMOTE_USER header that should be set by a reverse proxy properly configured (like nginx with ldap auth).
+
+## Running with docker-compose
+
+A typical docker-compose.yml to run this app looks like that:
+
+```
+version: '3.7'
+  services:
+
+    permapol:
+    	image: quay.io/genouest/permapol
+            environment:
+                APOLLO_URL: "http://apollo"
+                APOLLO_USER: "admin@apollo.com"
+                APOLLO_PASSWORD: "xxxxxxx"
+```
+
 ## Required env variables
 
 * APOLLO_URL *Url to the apollo API*
