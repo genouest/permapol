@@ -1,6 +1,6 @@
 # Permapol
 
-[![Docker Repository on Quay](https://quay.io/repository/genouest/permapol/status "Docker Repository on Quay")](https://quay.io/repository/genouest/permapol)
+[![Docker Repository on Quay](https://quay.io/repository/genouest/permapol/status "Docker Repository on Quay")](https://quay.io/repository/genouest/permapol) ![Lint](https://github.com/genouest/permapol/workflows/Lint/badge.svg)
 
 A permission manager for Apollo, designed to ease collaboration when coupled with a Galaxy instance.
 
