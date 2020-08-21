@@ -5,12 +5,13 @@ from config import Config
 
 from flask import Flask
 
+from flask_apscheduler import APScheduler
+
 from flask_bootstrap import Bootstrap
 
 from flask_caching import Cache
 
 from flask_fontawesome import FontAwesome
-from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
