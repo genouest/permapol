@@ -1,7 +1,8 @@
 from . import routes
-from .middleware import PrefixMiddleware
 
 from config import Config
+
+from .middleware import PrefixMiddleware
 
 from flask import Flask
 
