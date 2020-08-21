@@ -18,4 +18,3 @@ class Config(object):
     SECRET_KEY = os.urandom(32)
     CACHE_TYPE = "simple"
     CACHE_DEFAULT_TIMEOUT = 3600
-

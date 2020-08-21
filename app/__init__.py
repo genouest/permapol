@@ -5,6 +5,7 @@ from flask_caching import Cache
 from config import Config
 from flask_apscheduler import APScheduler
 from app.middleware import PrefixMiddleware
+from app import routes
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -17,8 +18,6 @@ scheduler.start()
 
 if app.config.get("PROXY_PREFIX"):
     app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=app.config.get("PROXY_PREFIX").rstrip("/"))
-
-from app import routes
 
 if app.config.get("USER_AUTOCOMPLETE").lower() == "true":
     # Cache user list
