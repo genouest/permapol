@@ -10,9 +10,10 @@ from flask_caching import Cache
 
 from flask_fontawesome import FontAwesome
 
+from . import routes
+
 from .middleware import PrefixMiddleware
 
-from . import routes
 
 app = Flask(__name__)
 with app.app_context():
