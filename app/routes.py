@@ -3,8 +3,10 @@ import time
 from functools import wraps
 
 from app import app, cache
+
 from flask import abort, jsonify, redirect, render_template, request, session, url_for
-from .forms import CreateGroupForm, AddUserForm
+
+from .forms import AddUserForm, CreateGroupForm
 
 
 def check_remote_login(func):
