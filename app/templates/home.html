@@ -41,7 +41,7 @@
             {% endif %}
         </div>
         <div class="tab-pane text-style card-body" id="admin_groups">
-          <h2>Group administration <button data-url="{{ url_for('create_group')}}" class="btn btn-info js-create float-right"><i class="fas fa-plus"></i> New</button></h2>
+          <h2>Group administration <button data-url="{{ url_for('app.create_group')}}" class="btn btn-info js-create float-right"><i class="fas fa-plus"></i> New</button></h2>
           {% if admin_groups %}
           <div class="table-responsive-xl">
               <table class="table table-hover">
@@ -59,7 +59,7 @@
                         <td>{{group.name}}</td>
                         <td>{{group.members}}</td>
                         <td>{{group.organisms}}</td>
-                        <td><a class="btn btn-info" href="{{ url_for('view_group', id=group.id)}}"><i class="fas fa-external-link-alt"></i> View</a></td>
+                        <td><a class="btn btn-info" href="{{ url_for('app.view_group', id=group.id)}}"><i class="fas fa-external-link-alt"></i> View</a></td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -111,5 +111,5 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='js/create_group.js') }}"></script>
+    <script src="{{ url_for('app.static', filename='js/create_group.js') }}"></script>
 {% endblock %}

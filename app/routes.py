@@ -44,9 +44,9 @@ def index():
 def view_group(id):
     group = _get_group(id)
     if not group:
-        return redirect(url_for('index'))
+        return redirect(url_for('app.index'))
     if not session['username'] in [admin['email'] for admin in group['admin']]:
-        return redirect(url_for('index'))
+        return redirect(url_for('app.index'))
     user_organisms = _get_user_organisms(session['username'])
     set_organisms = [orga['organism'] for orga in group['organismPermissions']]
     available_organisms = [organism for organism in user_organisms if organism['name'] not in set_organisms]
@@ -62,7 +62,7 @@ def create_group():
     form = CreateGroupForm()
     if form.validate_on_submit():
         group_id = _create_group(form.group_name.data, session['username'])
-        return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
+        return jsonify(status='ok', redirect=url_for('app.view_group', id=group_id))
     elif request.method == 'GET':
         return render_template('_partial_group_create.html', form=form)
     else:
@@ -89,7 +89,7 @@ def add_orga_group(group_id, orga_id):
         return render_template('_partial_organism_add.html', group=group, orga=orga, action="add")
     else:
         _manage_organism(group['name'], orga['commonName'], 'add')
-        return jsonify(status='ok', redirect=url_for('view_group', id=group['id']))
+        return jsonify(status='ok', redirect=url_for('app.view_group', id=group['id']))
 
 
 @app.route('/groups/<group_id>/remove_orga_access/<orga_id>', methods=['GET', 'POST'])
@@ -108,7 +108,7 @@ def remove_orga_group(group_id, orga_id):
         return render_template('_partial_organism_remove.html', group=group, orga=orga, action="remove")
     else:
         _manage_organism(group['name'], orga['commonName'], 'remove')
-        return jsonify(status='ok', redirect=url_for('view_group', id=group['id']))
+        return jsonify(status='ok', redirect=url_for('app.view_group', id=group['id']))
 
 
 @app.route('/groups/<group_id>/add_user', methods=['GET', 'POST'])
@@ -123,7 +123,7 @@ def add_user_group(group_id):
     form = AddUserForm()
     if form.validate_on_submit():
         _manage_group(group['name'], form.user_mail.data, 'add')
-        return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
+        return jsonify(status='ok', redirect=url_for('app.view_group', id=group_id))
     elif request.method == 'GET':
         if current_app.config.get("USER_AUTOCOMPLETE").lower() == "true":
             return render_template('_partial_user_add_autocomplete.html', form=form, group=group, user_list=_get_all_users())
@@ -155,7 +155,7 @@ def remove_user_group(group_id, user_id):
         return render_template('_partial_user_remove.html', group=group, user=user)
     else:
         _manage_group(group['name'], user['username'], 'remove')
-        return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
+        return jsonify(status='ok', redirect=url_for('app.view_group', id=group_id))
 
 
 def _get_group(group_id):

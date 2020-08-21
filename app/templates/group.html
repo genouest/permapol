@@ -32,7 +32,7 @@
                   {% for orga in added_organisms %}
                     <tr style="text-align:center;">
                         <td>{{orga.name}}</td>
-                        <td><button class="btn btn-info js-form" data-url="{{ url_for('remove_orga_group', group_id=group.id, orga_id=orga.id)}}"><i class="fas fa-trash"></i></button></td>
+                        <td><button class="btn btn-info js-form" data-url="{{ url_for('app.remove_orga_group', group_id=group.id, orga_id=orga.id)}}"><i class="fas fa-trash"></i></button></td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -57,7 +57,7 @@
                   {% for orga in available_organisms %}
                     <tr style="text-align:center;">
                         <td>{{orga.name}}</td>
-                        <td><button class="btn btn-info js-form" data-url="{{ url_for('add_orga_group', group_id=group.id, orga_id=orga.id)}}"><i class="fas fa-plus"></i></button></td>
+                        <td><button class="btn btn-info js-form" data-url="{{ url_for('app.add_orga_group', group_id=group.id, orga_id=orga.id)}}"><i class="fas fa-plus"></i></button></td>
                     </tr>
                   {% endfor %}
                   </tbody>
@@ -69,7 +69,7 @@
           {% endif %}
         </div>
         <div class="tab-pane text-style card-body" id="members">
-          <h4>Current group member(s) <button data-url="{{ url_for('add_user_group', group_id=group.id)}}" class="btn btn-info js-form float-right"><i class="fas fa-plus"></i> Add user</button></h4>
+          <h4>Current group member(s) <button data-url="{{ url_for('app.add_user_group', group_id=group.id)}}" class="btn btn-info js-form float-right"><i class="fas fa-plus"></i> Add user</button></h4>
           {% if group.users %}
           <br>
           <div class="table-responsive-xl">
@@ -85,7 +85,7 @@
                     <tr style="text-align:center;">
                         <td>{{user.email}}</td>
                         <td>{% if not current_user == user.email %}
-                          <button class="btn btn-danger js-form" data-url="{{ url_for('remove_user_group', group_id=group.id, user_id=user.id)}}"><i class="fas fa-trash"></i></button>
+                          <button class="btn btn-danger js-form" data-url="{{ url_for('app.remove_user_group', group_id=group.id, user_id=user.id)}}"><i class="fas fa-trash"></i></button>
                         {% endif%}
                         </td>
                     </tr>
@@ -111,5 +111,5 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="{{ url_for('static', filename='js/groups.js') }}"></script>
+    <script src="{{ url_for('app.static', filename='js/groups.js') }}"></script>
 {% endblock %}
