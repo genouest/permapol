@@ -11,7 +11,6 @@ from flask_caching import Cache
 from flask_fontawesome import FontAwesome
 
 from . import routes
-
 from .middleware import PrefixMiddleware
 
 
