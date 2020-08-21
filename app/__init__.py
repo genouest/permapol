@@ -1,8 +1,4 @@
-from . import routes
-
 from config import Config
-
-from .middleware import PrefixMiddleware
 
 from flask import Flask
 
@@ -13,6 +9,10 @@ from flask_bootstrap import Bootstrap
 from flask_caching import Cache
 
 from flask_fontawesome import FontAwesome
+
+from .middleware import PrefixMiddleware
+
+from . import routes
 
 app = Flask(__name__)
 with app.app_context():
