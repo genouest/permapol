@@ -3,6 +3,7 @@ from app import app, cache
 from functools import wraps
 from .forms import CreateGroupForm, AddUserForm
 import json
+import time
 
 
 def check_remote_login(func):
@@ -249,9 +250,27 @@ def _create_group(group_name, user_name):
     wa = app.config["APOLLO_INSTANCE"]
     group = wa.groups.create_group(group_name)
     group_id = group['id']
+    _wait_group_created(group_id)
     wa.groups.update_group_admin(group_id, [user_name])
     wa.users.add_to_group(group_name, user_name)
     return group_id
+
+
+def _wait_group_created(group_id):
+    """
+    Wait for an group to be really created from Apollo
+    """
+
+    wa = app.config["APOLLO_INSTANCE"]
+    time.sleep(1)
+    group_info = wa.groups.get_groups(group_id)
+    tries = 1
+    while len(group_info) < 1 and tries < 10:
+        time.sleep(1)
+        group_info = wa.groups.get_groups(group_id)
+        tries += 1
+
+    return group_info
 
 
 def _add_user_to_group(group_name, user_name):
