@@ -2,11 +2,12 @@ import json
 import time
 from functools import wraps
 
-from app import app, cache
 
-from flask import abort, jsonify, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, session, url_for
 
 from .forms import AddUserForm, CreateGroupForm
+
+app = Blueprint('app', __name__, url_prefix='/')
 
 
 def check_remote_login(func):
@@ -14,8 +15,8 @@ def check_remote_login(func):
     def decorated_function(*args, **kwargs):
         # Do the check here, or redirect if fail:
         # Check if the header is set, and that the user actually exists
-        wa = app.config["APOLLO_INSTANCE"]
-        proxy_header = app.config["PROXY_HEADER"]
+        wa = current_app.config["APOLLO_INSTANCE"]
+        proxy_header = current_app.config["PROXY_HEADER"]
         username = request.headers.get(proxy_header)
         if not username:
             abort(401)
@@ -124,7 +125,7 @@ def add_user_group(group_id):
         _manage_group(group['name'], form.user_mail.data, 'add')
         return jsonify(status='ok', redirect=url_for('view_group', id=group_id))
     elif request.method == 'GET':
-        if app.config.get("USER_AUTOCOMPLETE").lower() == "true":
+        if current_app.config.get("USER_AUTOCOMPLETE").lower() == "true":
             return render_template('_partial_user_add_autocomplete.html', form=form, group=group, user_list=_get_all_users())
         else:
             return render_template('_partial_user_add.html', form=form, group=group)
@@ -159,7 +160,7 @@ def remove_user_group(group_id, user_id):
 
 def _get_group(group_id):
     # Apollo does not handle errors gracefully, so cleanup the data
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     group = None
     try:
         group_id = int(group_id)
@@ -174,7 +175,7 @@ def _get_group(group_id):
 
 def _get_user(user_id):
     # Apollo does not handle errors gracefully, so cleanup the data
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     user = None
     try:
         user_id = int(user_id)
@@ -188,7 +189,7 @@ def _get_user(user_id):
 
 
 def _get_organism(organism_id):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     orga = None
     try:
         organism_id = int(organism_id)
@@ -201,7 +202,7 @@ def _get_organism(organism_id):
 
 
 def _get_user_organisms(username):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     # Will organism the user has direct access to, not organism with access through groups
     # This should avoid loss of control over the organism visibility
     organisms = wa.users.get_organism_permissions(username)
@@ -214,7 +215,7 @@ def _get_user_organisms(username):
 
 
 def _get_user_groups(username):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     groups = wa.users.show_user(username)['groups']
     user_groups = {"admin": [], "user": []}
     for group in groups:
@@ -222,18 +223,18 @@ def _get_user_groups(username):
         if username in [admin['username'] for admin in gp]:
             grp = wa.groups.get_groups(group['name'])[0]
             user_groups["admin"].append({'name': group['name'], 'id': grp['id'], "members": len(grp['users']), "organisms": len(grp['organismPermissions'])})
-            admins = ", ".join([admin['username'] for admin in gp if not admin['username'] == app.config['APOLLO_USER']])
+            admins = ", ".join([admin['username'] for admin in gp if not admin['username'] == current_app.config['APOLLO_USER']])
             user_groups["user"].append({'admins': admins, 'name': group['name']})
         else:
             # Ignore groups where the admin is only the apollo admin (ldap groups...)
-            admins = ", ".join([admin['username'] for admin in gp if not admin['username'] == app.config['APOLLO_USER']])
+            admins = ", ".join([admin['username'] for admin in gp if not admin['username'] == current_app.config['APOLLO_USER']])
             if admins:
                 user_groups["user"].append({'admins': admins, 'name': group['name']})
     return user_groups
 
 
 def _manage_organism(group_name, organism_name, action):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
 
     if action == "add":
         wa.groups.update_organism_permissions(group_name, organism_name, False, True, True, True)
@@ -242,7 +243,7 @@ def _manage_organism(group_name, organism_name, action):
 
 
 def _manage_group(group_name, username, action):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     if action == "add":
         wa.users.add_to_group(group_name, username)
     elif action == "remove":
@@ -250,7 +251,7 @@ def _manage_group(group_name, username, action):
 
 
 def _create_group(group_name, user_name):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     group = wa.groups.create_group(group_name)
     group_id = group['id']
     _wait_group_created(group_id)
@@ -264,7 +265,7 @@ def _wait_group_created(group_id):
     Wait for an group to be really created from Apollo
     """
 
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     time.sleep(1)
     group_info = wa.groups.get_groups(group_id)
     tries = 1
@@ -277,28 +278,28 @@ def _wait_group_created(group_id):
 
 
 def _add_user_to_group(group_name, user_name):
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     wa.users.add_to_group(group_name, user_name)
 
 
 def _get_all_users(refresh=False):
-    val = cache.get("user_list")
+    val = current_app.cache.get("user_list")
     if val and not refresh:
         return val
     else:
-        wa = app.config["APOLLO_INSTANCE"]
+        wa = current_app.config["APOLLO_INSTANCE"]
         user_list = [user['username'] for user in wa.users.get_users()]
-        cache.set("user_list", user_list)
+        current_app.cache.set("user_list", user_list)
         return user_list
 
 
 def _sync_permissions():
-    wa = app.config["APOLLO_INSTANCE"]
+    wa = current_app.config["APOLLO_INSTANCE"]
     groups = wa.groups.get_groups()
     for group in groups:
         # Skip groups with admin in it
         admins = [admin['email'] for admin in group['admin']]
-        if app.config["APOLLO_USER"] in admins:
+        if current_app.config["APOLLO_USER"] in admins:
             continue
         group_orga = set([orga['organism'] for orga in group['organismPermissions']])
         organisms_access = set()
