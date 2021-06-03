@@ -211,6 +211,9 @@ def _get_user_organisms(username):
         if "WRITE" in organism['permissions']:
             orga = wa.organisms.show_organism(organism['organism'])
             organism_list.append({"name": orga['commonName'], "id": orga['id']})
+
+    organism_list = sorted(organism_list, key=lambda i: i['name'].lower())
+
     return organism_list
 
 
@@ -230,6 +233,9 @@ def _get_user_groups(username):
             admins = ", ".join([admin['username'] for admin in gp if not admin['username'] == current_app.config['APOLLO_USER']])
             if admins:
                 user_groups["user"].append({'admins': admins, 'name': group['name']})
+
+    user_groups["admin"] = sorted(user_groups["admin"], key=lambda i: i['name'].lower())
+    user_groups["user"] = sorted(user_groups["user"], key=lambda i: i['name'].lower())
     return user_groups
 
 
