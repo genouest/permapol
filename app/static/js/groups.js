@@ -16,8 +16,17 @@ $(function () {
     });
   };
 
-  var saveForm = function () {
+  var saveForm = function (event) {
     var form = $(this);
+
+    // Disable the submit button
+    var button = $(event.target).eq(0).find('#submit')
+    var old_button_name = button.html()
+    button.prop("disabled", true);
+    button.html(
+      '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ' + old_button_name
+    );
+
     $.ajax({
       url: form.attr("data-url"),
       data: form.serialize(),
@@ -37,13 +46,30 @@ $(function () {
             $('<p class="help-block" style="color:red">' + value + '</p>')
                 .insertAfter('#' + key);
             $('.form-group').addClass('has-error')
+            button.html(old_button_name);
+            button.prop("disabled", false);
         }
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        $('.help-block').remove()
+        $('<p class="help-block" style="color:red">Error from server</p>')
+            .insertAfter('#group_name');
+        $('.form-group').addClass('has-error')
+        button.html(old_button_name);
+        button.prop("disabled", false);
       }
     });
     return false;
   };
 
   /* Binding */
-    $(".tab-content").on("click", ".js-form", loadForm);
-    $("#modal-group").on("submit", ".js-form", saveForm);
+  $("#admin_groups").on("click", ".js-create", loadForm);
+  $("#members").on("click", ".js-create", loadForm);
+  $("#members").on("click", ".js-delete", loadForm);
+  $("#organisms").on("click", ".js-form", loadForm);
+  $("#modal-group").on("submit", ".js-form", saveForm);
+
+  // Show the correct tag if passed by url
+  var hash = window.location.hash;
+  hash && $('div.list-group a[href="' + hash + '"]').tab('show');
 });

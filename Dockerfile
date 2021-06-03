@@ -1,5 +1,9 @@
 FROM python:3.7.4-stretch
 
+RUN mkdir /permapol
+
+WORKDIR /permapol
+
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install gunicorn
@@ -11,4 +15,4 @@ RUN chmod +x boot.sh
 ENV FLASK_APP permapol.py
 EXPOSE 80
 
-ENTRYPOINT ["./boot.sh"]
+ENTRYPOINT ["/permapol/boot.sh"]

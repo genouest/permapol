@@ -36,7 +36,7 @@ def check_remote_login(func):
 def index():
     groups = _get_user_groups(session['username'])
     organisms = _get_user_organisms(session['username'])
-    return render_template('home.html', title='Home', admin_groups=groups['admin'], user_groups=groups['user'], organisms=organisms)
+    return render_template('home.html', title='Home', admin_groups=groups['admin'], user_groups=groups['user'], organisms=organisms, username=session['username'])
 
 
 @app.route('/groups/view/<id>', methods=['GET', 'POST'])
