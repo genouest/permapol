@@ -38,3 +38,4 @@ version: '3.7'
 * PROXY_PREFIX *Default to None. This is the url prefix set py the proxy.
 * USER_AUTOCOMPLETE *Default to FALSE. If set to TRUE, there will be an autocompletion when adding user to a group*
 * CRON_SYNC *Default to FALSE. If set to TRUE, a cron will run daily to remove access to an organism if the admin lost access*
+
